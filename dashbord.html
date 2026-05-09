@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Lucy Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #1a2a6c; --secondary: #b21f1f; --bg: #f4f7f6; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; }
+        
+        .header { 
+            background: var(--primary); color: white; padding: 20px; 
+            text-align: center; position: relative; 
+        }
+
+        .profile-section { 
+            text-align: center; padding: 20px; background: white; 
+            margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+
+        .profile-img { 
+            width: 100px; height: 100px; border-radius: 50%; 
+            object-fit: cover; border: 3px solid var(--primary); 
+        }
+
+        .upload-btn { 
+            display: inline-block; margin-top: 10px; cursor: pointer; 
+            color: var(--primary); font-size: 14px; 
+        }
+
+        .grid-container { 
+            display: grid; grid-template-columns: repeat(2, 1fr); 
+            gap: 15px; padding: 15px; 
+        }
+
+        .feature-card { 
+            background: white; padding: 20px; border-radius: 15px; 
+            text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+            transition: 0.3s; cursor: pointer; border-bottom: 4px solid var(--primary); 
+        }
+
+        .feature-card i { font-size: 24px; color: var(--primary); margin-bottom: 10px; }
+        .feature-card h4 { margin: 5px 0; font-size: 14px; }
+        
+        /* Logout Button Style */
+        .logout-btn { 
+            position: absolute; right: 20px; top: 20px; 
+            font-size: 22px; color: white; cursor: pointer; 
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <i class="fas fa-sign-out-alt logout-btn" onclick="logout()"></i>
+    <h3>LUCY STUDENT PORTAL</h3>
+</div>
+
+<div class="profile-section">
+    <img src="https://via.placeholder.com/100" id="profilePic" class="profile-img">
+    <input type="file" id="imageInput" hidden accept="image/*">
+    <label for="imageInput" class="upload-btn"><i class="fas fa-camera"></i> Change Photo</label>
+    <h2 id="studentName" style="margin: 5px 0;">Loading...</h2>
+    <p id="studentEmail" style="margin: 0; color: #666;">---</p>
+</div>
+
+<div class="grid-container">
+    <div class="feature-card" onclick="location.href='notice.html'">
+        <i class="fas fa-bullhorn"></i><h4>Notices</h4>
+    </div>
+    <div class="feature-card" onclick="location.href='grades.html'">
+        <i class="fas fa-chart-line"></i><h4>Grades</h4>
+    </div>
+    <div class="feature-card" onclick="location.href='resource.html'">
+        <i class="fas fa-book"></i><h4>Resources</h4>
+    </div>
+    <div class="feature-card" onclick="location.href='attendance.html'">
+        <i class="fas fa-calendar-check"></i><h4>Attendance</h4>
+    </div>
+    <div class="feature-card" onclick="location.href='schedule.html'">
+        <i class="fas fa-clock"></i><h4>Schedule</h4>
+    </div>
+    <div class="feature-card" onclick="location.href='assignment.html'">
+        <i class="fas fa-tasks"></i><h4>Assignments</h4>
+    </div>
+    <div class="feature-card" onclick="location.href='library.html'">
+        <i class="fas fa-university"></i><h4>Library</h4>
+    </div>
+    <div class="feature-card" onclick="location.href='gallery.html'">
+        <i class="fas fa-images"></i><h4>Gallery</h4>
+    </div>
+    <div class="feature-card" onclick="location.href='club.html'">
+        <i class="fas fa-users"></i><h4>Clubs</h4>
+    </div>
+    <div class="feature-card" onclick="location.href='emergency.html'">
+        <i class="fas fa-phone-alt"></i><h4>Emergency</h4>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+    // ያንተ Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyAzzLyMJUbmryjurXHp4YkcEmFScYbjjHI",
+        authDomain: "lucy-eaa12.firebaseapp.com",
+        projectId: "lucy-eaa12",
+        storageBucket: "lucy-eaa12.firebasestorage.app",
+        messagingSenderId: "329740469456",
+        appId: "1:329740469456:web:53cba97cb7a045ddfe4ad5"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // የተማሪውን መረጃ ማምጣት
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            document.getElementById('studentEmail').innerText = user.email;
+            document.getElementById('studentName').innerText = user.email.split('@')[0].toUpperCase();
+            
+            // የተቀመጠ ፕሮፋይል ፎቶ ካለ
+            const savedImg = localStorage.getItem('profilePic');
+            if(savedImg) document.getElementById('profilePic').src = savedImg;
+        } else {
+            // Login ካላደረገ ወደ index.html ይመልሰው
+            location.href = 'index.html';
+        }
+    });
+
+    // ፎቶ ለመቀየር
+    document.getElementById('imageInput').onchange = (e) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            document.getElementById('profilePic').src = reader.result;
+            localStorage.setItem('profilePic', reader.result);
+        };
+        reader.readAsDataURL(e.target.files[0]);
+    };
+
+    // Logout Function
+    window.logout = () => {
+        signOut(auth).then(() => {
+            location.href = 'index.html';
+        }).catch((error) => {
+            console.error("Logout Error:", error);
+        });
+    };
+</script>
+</body>
+</html>

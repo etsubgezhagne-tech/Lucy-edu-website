@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notice Board - Lucy Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #1a2a6c; --bg: #eff2f5; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding: 0; }
+        
+        /* Header */
+        .header { 
+            background: var(--primary); 
+            color: white; 
+            padding: 15px 20px; 
+            display: flex; 
+            align-items: center; 
+            gap: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+
+        /* Notice Cards */
+        .notice-card { 
+            background: white; 
+            padding: 15px; 
+            border-radius: 12px; 
+            margin-bottom: 15px; 
+            border-left: 5px solid #2196F3; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+        }
+
+        .notice-date { color: #888; font-size: 12px; font-weight: bold; text-transform: uppercase; }
+        .notice-title { margin: 5px 0; color: var(--primary); font-size: 18px; }
+        .notice-body { margin: 0; color: #444; line-height: 1.5; font-size: 14px; }
+
+        .status-msg { text-align: center; color: #777; margin-top: 50px; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <i class="fas fa-arrow-left" onclick="window.location.href='dashbord.html'" style="cursor:pointer;"></i>
+        <h3 style="margin:0;">Notice Board</h3>
+    </div>
+
+    <div class="container" id="notices-list">
+        <div class="status-msg" id="status">Loading announcements...</div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // Your Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAzzLyMJUbmryjurXHp4YkcEmFScYbjjHI",
+            authDomain: "lucy-eaa12.firebaseapp.com",
+            projectId: "lucy-eaa12",
+            storageBucket: "lucy-eaa12.firebasestorage.app",
+            messagingSenderId: "329740469456",
+            appId: "1:329740469456:web:53cba97cb7a045ddfe4ad5"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function fetchNotices() {
+            const listContainer = document.getElementById('notices-list');
+            const statusMsg = document.getElementById('status');
+
+            try {
+                const querySnapshot = await getDocs(collection(db, "notices"));
+                
+                if (querySnapshot.empty) {
+                    statusMsg.innerText = "No new notices at the moment.";
+                    return;
+                }
+
+                listContainer.innerHTML = ""; // Clear loading text
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const card = `
+                        <div class="notice-card">
+                            <span class="notice-date">${data.date || 'Today'}</span>
+                            <h4 class="notice-title">${data.title || 'No Title'}</h4>
+                            <p class="notice-body">${data.content || 'No content provided.'}</p>
+                        </div>
+                    `;
+                    listContainer.innerHTML += card;
+                });
+
+            } catch (error) {
+                console.error("Firestore Error:", error);
+                statusMsg.innerHTML = "<span style='color:red;'>Failed to load notices. Check internet connection.</span>";
+            }
+        }
+
+          // የ fetchNotices መዝጊያ ቅንፍ
+
+        // እዚህ ጋር ነው የሚገባው!
+        fetchNotices(); 
+
+    </script>
+</body>
+</html>
+
